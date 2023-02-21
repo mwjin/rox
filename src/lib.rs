@@ -28,3 +28,11 @@ pub fn run_prompt() -> Result<(), Box<dyn Error>> {
 fn run(source: &String) {
     println!("Source: {source}");
 }
+
+fn error(line: i32, message: &String) {
+    report(line, &"".to_string(), message);
+}
+
+fn report(line: i32, pos: &String, message: &String) {
+    eprintln!("[line {line}] Error{pos}: {message}");
+}
