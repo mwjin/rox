@@ -30,9 +30,16 @@ fn run_prompt() -> Result<(), Box<dyn Error>> {
         print!("ROX> ");
         io::stdout().flush()?;
         let mut line = String::new();
-        io::stdin().read_line(&mut line)?;
+        let line_size = io::stdin().read_line(&mut line)?;
+
+        // EOF (Ctrl + D)
+        if line_size == 0 {
+            break;
+        }
+
         run(&line);
     }
+    Ok(())
 }
 
 fn run(source: &String) {
