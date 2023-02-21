@@ -8,14 +8,19 @@ use std::process;
 fn main() {
     let args: Vec<String> = env::args().collect();
 
-    // TODO: error handling
     if args.len() > 2 {
         println!("Usage: rox [script]");
         process::exit(64);
     } else if args.len() == 2 {
-        run_file(&args[1]);
+        if let Err(e) = run_file(&args[1]) {
+            eprintln!("Application error: {e}");
+            process::exit(1);
+        };
     } else {
-        run_prompt();
+        if let Err(e) = run_prompt() {
+            eprintln!("Application error: {e}");
+            process::exit(1);
+        };
     }
 }
 
