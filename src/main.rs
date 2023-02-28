@@ -10,12 +10,12 @@ fn main() {
     } else if args.len() == 2 {
         if let Err(e) = rox::run_file(&args[1]) {
             eprintln!("Application error: {e}");
-            process::exit(1);
+            process::exit(65);
         };
     } else {
         if let Err(e) = rox::run_prompt() {
             eprintln!("Application error: {e}");
-            process::exit(1);
+            process::exit(65);
         };
     }
 }
