@@ -1,3 +1,5 @@
+mod token_type;
+
 use std::error::Error;
 use std::fs;
 use std::io::{self, Write};
