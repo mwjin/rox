@@ -1,4 +1,5 @@
 mod token_type;
+mod token;
 
 use std::error::Error;
 use std::fs;
