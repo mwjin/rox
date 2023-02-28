@@ -1,3 +1,6 @@
+use std::fmt;
+
+#[derive(Debug)]
 pub enum TokenType {
     // Single-character tokens
     LEFT_PAREN,
@@ -47,4 +50,10 @@ pub enum TokenType {
 
     // EOF
     EOF,
+}
+
+impl fmt::Display for TokenType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
