@@ -1,3 +1,4 @@
+use crate as Rox;
 use crate::{token::Token, token_type::TokenType};
 
 pub struct Scanner<'a> {
@@ -46,7 +47,7 @@ impl<'a> Scanner<'a> {
             '+' => self.add_token(TokenType::PLUS),
             ';' => self.add_token(TokenType::SEMICOLON),
             '*' => self.add_token(TokenType::STAR),
-            _ => (),
+            _ => Rox::error(self.line, "Unexpected character."),
         };
     }
 
