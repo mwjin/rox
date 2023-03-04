@@ -34,11 +34,11 @@ fn run(source: &String) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn error(line: i32, message: &String) {
+fn error(line: usize, message: &str) {
     report(line, &"".to_string(), message);
 }
 
-fn report(line: i32, pos: &String, message: &String) {
+fn report(line: usize, pos: &str, message: &str) {
     // TODO: Improve the error message with more information
     eprintln!("[line {line}] Error{pos}: {message}");
 }
