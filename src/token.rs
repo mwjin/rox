@@ -1,13 +1,14 @@
 use crate::token_type::TokenType;
 
-pub struct Token {
+#[derive(Debug, PartialEq)]
+pub struct Token<'a> {
     token_type: TokenType,
-    lexeme: String,
-    line: i32,
+    lexeme: &'a str,
+    line: usize,
 }
 
-impl Token {
-    pub fn new(token_type: TokenType, lexeme: String, line: i32) -> Self {
+impl<'a> Token<'a> {
+    pub fn new(token_type: TokenType, lexeme: &'a str, line: usize) -> Self {
         Self {
             token_type,
             lexeme,
@@ -26,10 +27,10 @@ mod tests {
 
     #[test]
     fn to_string_works() {
-        let token = Token::new(TokenType::IDENTIFIER, "x1".to_string(), 10);
+        let token = Token::new(TokenType::IDENTIFIER, "x1", 10);
         assert_eq!(token.to_string(), "IDENTIFIER x1 10");
 
-        let token = Token::new(TokenType::PLUS, "+".to_string(), 10);
+        let token = Token::new(TokenType::PLUS, "+", 10);
         assert_eq!(token.to_string(), "PLUS + 10");
     }
 }
