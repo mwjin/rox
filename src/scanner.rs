@@ -47,6 +47,14 @@ impl<'a> Scanner<'a> {
             '+' => self.add_token(TokenType::PLUS),
             ';' => self.add_token(TokenType::SEMICOLON),
             '*' => self.add_token(TokenType::STAR),
+            '!' => {
+                if self.peek() == '=' {
+                    self.advance();
+                    self.add_token(TokenType::BANG_EQUAL);
+                } else {
+                    self.add_token(TokenType::BANG);
+                }
+            }
             _ => Rox::error(self.line, "Unexpected character."),
         };
     }
@@ -54,6 +62,13 @@ impl<'a> Scanner<'a> {
     fn advance(&mut self) -> char {
         self.current += 1;
         self.source.chars().nth(self.current - 1).unwrap()
+    }
+
+    fn peek(&self) -> char {
+        if self.is_at_end() {
+            return '\0';
+        }
+        self.source.chars().nth(self.current).unwrap()
     }
 
     fn add_token(&mut self, token_type: TokenType) {
@@ -89,6 +104,20 @@ mod tests {
                 Token::new(TokenType::PLUS, "+", 1),
                 Token::new(TokenType::MINUS, "-", 1),
                 Token::new(TokenType::EOF, "", 1),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_scan_tokens_bang_equal() {
+        let source = String::from("!=");
+        let mut scanner = Scanner::new(&source);
+
+        assert_eq!(
+            scanner.scan_tokens(),
+            &vec![
+                Token::new(TokenType::BANG_EQUAL, "!=", 1),
+                Token::new(TokenType::EOF, "", 1)
             ]
         );
     }
