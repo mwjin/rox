@@ -109,13 +109,14 @@ mod tests {
     }
 
     #[test]
-    fn test_scan_tokens_bang_equal() {
-        let source = String::from("!=");
+    fn test_scan_tokens_starts_with_bang() {
+        let source = String::from("!!=");
         let mut scanner = Scanner::new(&source);
 
         assert_eq!(
             scanner.scan_tokens(),
             &vec![
+                Token::new(TokenType::BANG, "!", 1),
                 Token::new(TokenType::BANG_EQUAL, "!=", 1),
                 Token::new(TokenType::EOF, "", 1)
             ]
