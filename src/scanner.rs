@@ -55,6 +55,30 @@ impl<'a> Scanner<'a> {
                     self.add_token(TokenType::BANG);
                 }
             }
+            '=' => {
+                if self.peek() == '=' {
+                    self.advance();
+                    self.add_token(TokenType::EQUAL_EQUAL);
+                } else {
+                    self.add_token(TokenType::EQUAL);
+                }
+            }
+            '<' => {
+                if self.peek() == '=' {
+                    self.advance();
+                    self.add_token(TokenType::LESS_EQUAL);
+                } else {
+                    self.add_token(TokenType::LESS);
+                }
+            }
+            '>' => {
+                if self.peek() == '=' {
+                    self.advance();
+                    self.add_token(TokenType::GREATER_EQUAL);
+                } else {
+                    self.add_token(TokenType::GREATER);
+                }
+            }
             _ => Rox::error(self.line, "Unexpected character."),
         };
     }
@@ -121,5 +145,24 @@ mod tests {
                 Token::new(TokenType::EOF, "", 1)
             ]
         );
+    }
+
+    #[test]
+    fn test_scan_tokens_operators() {
+        let source = "<<=>>====".to_string();
+        let mut scanner = Scanner::new(&source);
+
+        assert_eq!(
+            scanner.scan_tokens(),
+            &vec![
+                Token::new(TokenType::LESS, "<", 1),
+                Token::new(TokenType::LESS_EQUAL, "<=", 1),
+                Token::new(TokenType::GREATER, ">", 1),
+                Token::new(TokenType::GREATER_EQUAL, ">=", 1),
+                Token::new(TokenType::EQUAL_EQUAL, "==", 1),
+                Token::new(TokenType::EQUAL, "=", 1),
+                Token::new(TokenType::EOF, "", 1),
+            ]
+        )
     }
 }
