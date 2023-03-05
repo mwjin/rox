@@ -89,6 +89,7 @@ impl<'a> Scanner<'a> {
                 }
             }
             '\n' => self.line += 1,
+            ' ' | '\t' | '\r' => (),
             _ => Rox::error(self.line, "Unexpected character."),
         };
     }
@@ -190,6 +191,28 @@ mod tests {
                 Token::new(TokenType::LESS, "<", 2),
                 Token::new(TokenType::GREATER_EQUAL, ">=", 2),
                 Token::new(TokenType::EOF, "", 2),
+            ]
+        )
+    }
+
+    #[test]
+    fn test_scan_tokens_skip_comment_and_whitespace() {
+        let source = "\
+// Here is a comment
+< > = // inline comment
+()"
+        .to_string();
+        let mut scanner = Scanner::new(&source);
+
+        assert_eq!(
+            scanner.scan_tokens(),
+            &vec![
+                Token::new(TokenType::LESS, "<", 2),
+                Token::new(TokenType::GREATER, ">", 2),
+                Token::new(TokenType::EQUAL, "=", 2),
+                Token::new(TokenType::LEFT_PAREN, "(", 3),
+                Token::new(TokenType::RIGHT_PAREN, ")", 3),
+                Token::new(TokenType::EOF, "", 3),
             ]
         )
     }
