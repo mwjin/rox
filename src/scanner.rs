@@ -79,6 +79,16 @@ impl<'a> Scanner<'a> {
                     self.add_token(TokenType::GREATER);
                 }
             }
+            '/' => {
+                if self.peek() == '/' {
+                    while !self.is_at_end() && self.peek() != '\n' {
+                        self.advance();
+                    }
+                } else {
+                    self.add_token(TokenType::SLASH)
+                }
+            }
+            '\n' => self.line += 1,
             _ => Rox::error(self.line, "Unexpected character."),
         };
     }
@@ -162,6 +172,24 @@ mod tests {
                 Token::new(TokenType::EQUAL_EQUAL, "==", 1),
                 Token::new(TokenType::EQUAL, "=", 1),
                 Token::new(TokenType::EOF, "", 1),
+            ]
+        )
+    }
+
+    #[test]
+    fn test_scan_tokens_skip_comment() {
+        let source = "\
+// Here is a comment
+<>="
+        .to_string();
+        let mut scanner = Scanner::new(&source);
+
+        assert_eq!(
+            scanner.scan_tokens(),
+            &vec![
+                Token::new(TokenType::LESS, "<", 2),
+                Token::new(TokenType::GREATER_EQUAL, ">=", 2),
+                Token::new(TokenType::EOF, "", 2),
             ]
         )
     }
