@@ -1,9 +1,12 @@
+use std::collections::HashMap;
+
 use crate as Rox;
 use crate::{token::Token, token_type::TokenType};
 
 pub struct Scanner<'a> {
     source: &'a String,
     tokens: Vec<Token<'a>>,
+    keywords: HashMap<&'static str, TokenType>,
     start: usize,
     current: usize,
     line: usize,
@@ -14,10 +17,32 @@ impl<'a> Scanner<'a> {
         Self {
             source: source,
             tokens: vec![],
+            keywords: Scanner::keywords(),
             start: 0,
             current: 0,
             line: 1,
         }
+    }
+
+    fn keywords() -> HashMap<&'static str, TokenType> {
+        let mut result = HashMap::new();
+        result.insert("and", TokenType::AND);
+        result.insert("class", TokenType::CLASS);
+        result.insert("else", TokenType::ELSE);
+        result.insert("false", TokenType::FALSE);
+        result.insert("for", TokenType::FOR);
+        result.insert("fun", TokenType::FUN);
+        result.insert("if", TokenType::IF);
+        result.insert("nil", TokenType::NIL);
+        result.insert("or", TokenType::OR);
+        result.insert("print", TokenType::PRINT);
+        result.insert("return", TokenType::RETURN);
+        result.insert("super", TokenType::SUPER);
+        result.insert("this", TokenType::THIS);
+        result.insert("true", TokenType::TRUE);
+        result.insert("var", TokenType::VAR);
+        result.insert("while", TokenType::WHILE);
+        result
     }
 
     pub fn scan_tokens(&mut self) -> &Vec<Token> {
@@ -94,6 +119,8 @@ impl<'a> Scanner<'a> {
             _ => {
                 if c.is_digit(10) {
                     self.scan_number();
+                } else if c.is_alphabetic() {
+                    self.scan_identifier();
                 } else {
                     Rox::error(self.line, "Unexpected character.")
                 }
@@ -168,6 +195,26 @@ impl<'a> Scanner<'a> {
         }
 
         self.add_token(TokenType::NUMBER);
+    }
+
+    fn scan_identifier(&mut self) {
+        while self.is_allowed_char_for_id(self.peek()) {
+            self.advance();
+        }
+
+        let id_literal = &self.source[self.start..self.current];
+        match self.get_keyword(id_literal) {
+            Some(keyword_token) => self.add_token(keyword_token),
+            _ => self.add_token(TokenType::IDENTIFIER),
+        }
+    }
+
+    fn is_allowed_char_for_id(&self, c: char) -> bool {
+        c.is_digit(10) || c.is_alphabetic() || c == '_'
+    }
+
+    fn get_keyword(&self, key_str: &str) -> Option<TokenType> {
+        self.keywords.get(key_str).cloned()
     }
 }
 
@@ -331,6 +378,38 @@ a newline\"<"
                 Token::new(TokenType::NUMBER, "1234", 1),
                 Token::new(TokenType::DOT, ".", 1),
                 Token::new(TokenType::EOF, "", 1),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_scan_tokens_identifiers() {
+        let source = "\
+var a = 1;
+if (a == 1) a = 2;
+"
+        .to_string();
+        let mut scanner = Scanner::new(&source);
+
+        assert_eq!(
+            scanner.scan_tokens(),
+            &vec![
+                Token::new(TokenType::VAR, "var", 1),
+                Token::new(TokenType::IDENTIFIER, "a", 1),
+                Token::new(TokenType::EQUAL, "=", 1),
+                Token::new(TokenType::NUMBER, "1", 1),
+                Token::new(TokenType::SEMICOLON, ";", 1),
+                Token::new(TokenType::IF, "if", 2),
+                Token::new(TokenType::LEFT_PAREN, "(", 2),
+                Token::new(TokenType::IDENTIFIER, "a", 2),
+                Token::new(TokenType::EQUAL_EQUAL, "==", 2),
+                Token::new(TokenType::NUMBER, "1", 2),
+                Token::new(TokenType::RIGHT_PAREN, ")", 2),
+                Token::new(TokenType::IDENTIFIER, "a", 2),
+                Token::new(TokenType::EQUAL, "=", 2),
+                Token::new(TokenType::NUMBER, "2", 2),
+                Token::new(TokenType::SEMICOLON, ";", 2),
+                Token::new(TokenType::EOF, "", 3),
             ]
         );
     }
