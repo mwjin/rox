@@ -91,7 +91,13 @@ impl<'a> Scanner<'a> {
             '\n' => self.line += 1,
             ' ' | '\t' | '\r' => (),
             '"' => self.scan_string(),
-            _ => Rox::error(self.line, "Unexpected character."),
+            _ => {
+                if c.is_digit(10) {
+                    self.scan_number();
+                } else {
+                    Rox::error(self.line, "Unexpected character.")
+                }
+            }
         };
     }
 
@@ -105,6 +111,13 @@ impl<'a> Scanner<'a> {
             return '\0';
         }
         self.source.chars().nth(self.current).unwrap()
+    }
+
+    fn peek_next(&self) -> char {
+        if self.current >= self.source.len() - 1 {
+            return '\0';
+        }
+        self.source.chars().nth(self.current + 1).unwrap()
     }
 
     fn add_token(&mut self, token_type: TokenType) {
@@ -139,10 +152,29 @@ impl<'a> Scanner<'a> {
         self.advance();
         self.add_token(TokenType::STRING);
     }
+
+    fn scan_number(&mut self) {
+        while !self.is_at_end() && self.peek().is_digit(10) {
+            self.advance();
+        }
+
+        // Scan the fractional part
+        if self.peek() == '.' && self.peek_next().is_digit(10) {
+            self.advance();
+
+            while self.peek().is_digit(10) {
+                self.advance();
+            }
+        }
+
+        self.add_token(TokenType::NUMBER);
+    }
 }
 
 #[cfg(test)]
 mod tests {
+    use std::iter::Scan;
+
     use super::*;
 
     #[test]
@@ -251,6 +283,54 @@ a newline\"<"
                 Token::new(TokenType::STRING, "\"Here is \na newline\"", 2),
                 Token::new(TokenType::LESS, "<", 2),
                 Token::new(TokenType::EOF, "", 2),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_scan_tokens_number_literals() {
+        let source = "1.2 + 13 = 14.2".to_string();
+        let mut scanner = Scanner::new(&source);
+
+        assert_eq!(
+            scanner.scan_tokens(),
+            &vec![
+                Token::new(TokenType::NUMBER, "1.2", 1),
+                Token::new(TokenType::PLUS, "+", 1),
+                Token::new(TokenType::NUMBER, "13", 1),
+                Token::new(TokenType::EQUAL, "=", 1),
+                Token::new(TokenType::NUMBER, "14.2", 1),
+                Token::new(TokenType::EOF, "", 1),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_scan_tokens_number_start_with_dot() {
+        let source = ".12.34".to_string();
+        let mut scanner = Scanner::new(&source);
+
+        assert_eq!(
+            scanner.scan_tokens(),
+            &vec![
+                Token::new(TokenType::DOT, ".", 1),
+                Token::new(TokenType::NUMBER, "12.34", 1),
+                Token::new(TokenType::EOF, "", 1),
+            ]
+        );
+    }
+
+    #[test]
+    fn test_scan_tokens_number_end_with_dot() {
+        let source = "1234.".to_string();
+        let mut scanner = Scanner::new(&source);
+
+        assert_eq!(
+            scanner.scan_tokens(),
+            &vec![
+                Token::new(TokenType::NUMBER, "1234", 1),
+                Token::new(TokenType::DOT, ".", 1),
+                Token::new(TokenType::EOF, "", 1),
             ]
         );
     }
