@@ -26,22 +26,22 @@ impl<'a> Scanner<'a> {
 
     fn keywords() -> HashMap<&'static str, TokenType> {
         let mut result = HashMap::new();
-        result.insert("and", TokenType::AND);
-        result.insert("class", TokenType::CLASS);
-        result.insert("else", TokenType::ELSE);
-        result.insert("false", TokenType::FALSE);
-        result.insert("for", TokenType::FOR);
-        result.insert("fun", TokenType::FUN);
-        result.insert("if", TokenType::IF);
-        result.insert("nil", TokenType::NIL);
-        result.insert("or", TokenType::OR);
-        result.insert("print", TokenType::PRINT);
-        result.insert("return", TokenType::RETURN);
-        result.insert("super", TokenType::SUPER);
-        result.insert("this", TokenType::THIS);
-        result.insert("true", TokenType::TRUE);
-        result.insert("var", TokenType::VAR);
-        result.insert("while", TokenType::WHILE);
+        result.insert("and", TokenType::And);
+        result.insert("class", TokenType::Class);
+        result.insert("else", TokenType::Else);
+        result.insert("false", TokenType::False);
+        result.insert("for", TokenType::For);
+        result.insert("fun", TokenType::Fun);
+        result.insert("if", TokenType::If);
+        result.insert("nil", TokenType::Nil);
+        result.insert("or", TokenType::Or);
+        result.insert("print", TokenType::Print);
+        result.insert("return", TokenType::Return);
+        result.insert("super", TokenType::Super);
+        result.insert("this", TokenType::This);
+        result.insert("true", TokenType::True);
+        result.insert("var", TokenType::Var);
+        result.insert("while", TokenType::While);
         result
     }
 
@@ -62,46 +62,46 @@ impl<'a> Scanner<'a> {
     fn scan_token(&mut self) {
         let c = self.advance();
         match c {
-            '(' => self.add_token(TokenType::LEFT_PAREN),
-            ')' => self.add_token(TokenType::RIGHT_PAREN),
-            '{' => self.add_token(TokenType::LEFT_BRACE),
-            '}' => self.add_token(TokenType::RIGHT_BRACE),
-            ',' => self.add_token(TokenType::COMMA),
-            '.' => self.add_token(TokenType::DOT),
-            '-' => self.add_token(TokenType::MINUS),
-            '+' => self.add_token(TokenType::PLUS),
-            ';' => self.add_token(TokenType::SEMICOLON),
-            '*' => self.add_token(TokenType::STAR),
+            '(' => self.add_token(TokenType::LeftParen),
+            ')' => self.add_token(TokenType::RightParen),
+            '{' => self.add_token(TokenType::LeftBrace),
+            '}' => self.add_token(TokenType::RightBrace),
+            ',' => self.add_token(TokenType::Comma),
+            '.' => self.add_token(TokenType::Dot),
+            '-' => self.add_token(TokenType::Minus),
+            '+' => self.add_token(TokenType::Plus),
+            ';' => self.add_token(TokenType::Semicolon),
+            '*' => self.add_token(TokenType::Star),
             '!' => {
                 if self.peek() == '=' {
                     self.advance();
-                    self.add_token(TokenType::BANG_EQUAL);
+                    self.add_token(TokenType::BangEqual);
                 } else {
-                    self.add_token(TokenType::BANG);
+                    self.add_token(TokenType::Bang);
                 }
             }
             '=' => {
                 if self.peek() == '=' {
                     self.advance();
-                    self.add_token(TokenType::EQUAL_EQUAL);
+                    self.add_token(TokenType::EqualEqual);
                 } else {
-                    self.add_token(TokenType::EQUAL);
+                    self.add_token(TokenType::Equal);
                 }
             }
             '<' => {
                 if self.peek() == '=' {
                     self.advance();
-                    self.add_token(TokenType::LESS_EQUAL);
+                    self.add_token(TokenType::LessEqual);
                 } else {
-                    self.add_token(TokenType::LESS);
+                    self.add_token(TokenType::Less);
                 }
             }
             '>' => {
                 if self.peek() == '=' {
                     self.advance();
-                    self.add_token(TokenType::GREATER_EQUAL);
+                    self.add_token(TokenType::GreaterEqual);
                 } else {
-                    self.add_token(TokenType::GREATER);
+                    self.add_token(TokenType::Greater);
                 }
             }
             '/' => {
@@ -110,7 +110,7 @@ impl<'a> Scanner<'a> {
                         self.advance();
                     }
                 } else {
-                    self.add_token(TokenType::SLASH)
+                    self.add_token(TokenType::Slash)
                 }
             }
             '\n' => self.line += 1,
@@ -157,7 +157,7 @@ impl<'a> Scanner<'a> {
 
     fn add_eof(&mut self) {
         self.tokens.push(Token::new(
-            TokenType::EOF,
+            TokenType::Eof,
             &self.source[self.current..self.source.len()],
             self.line,
         ));
@@ -177,7 +177,7 @@ impl<'a> Scanner<'a> {
         }
 
         self.advance();
-        self.add_token(TokenType::STRING);
+        self.add_token(TokenType::String);
     }
 
     fn scan_number(&mut self) {
@@ -194,7 +194,7 @@ impl<'a> Scanner<'a> {
             }
         }
 
-        self.add_token(TokenType::NUMBER);
+        self.add_token(TokenType::Number);
     }
 
     fn scan_identifier(&mut self) {
@@ -205,7 +205,7 @@ impl<'a> Scanner<'a> {
         let id_literal = &self.source[self.start..self.current];
         match self.get_keyword(id_literal) {
             Some(keyword_token) => self.add_token(keyword_token),
-            _ => self.add_token(TokenType::IDENTIFIER),
+            _ => self.add_token(TokenType::Identifier),
         }
     }
 
@@ -220,8 +220,6 @@ impl<'a> Scanner<'a> {
 
 #[cfg(test)]
 mod tests {
-    use std::iter::Scan;
-
     use super::*;
 
     #[test]
@@ -232,10 +230,10 @@ mod tests {
         assert_eq!(
             scanner.scan_tokens(),
             &vec![
-                Token::new(TokenType::STAR, "*", 1),
-                Token::new(TokenType::PLUS, "+", 1),
-                Token::new(TokenType::MINUS, "-", 1),
-                Token::new(TokenType::EOF, "", 1),
+                Token::new(TokenType::Star, "*", 1),
+                Token::new(TokenType::Plus, "+", 1),
+                Token::new(TokenType::Minus, "-", 1),
+                Token::new(TokenType::Eof, "", 1),
             ]
         );
     }
@@ -248,9 +246,9 @@ mod tests {
         assert_eq!(
             scanner.scan_tokens(),
             &vec![
-                Token::new(TokenType::BANG, "!", 1),
-                Token::new(TokenType::BANG_EQUAL, "!=", 1),
-                Token::new(TokenType::EOF, "", 1)
+                Token::new(TokenType::Bang, "!", 1),
+                Token::new(TokenType::BangEqual, "!=", 1),
+                Token::new(TokenType::Eof, "", 1)
             ]
         );
     }
@@ -263,13 +261,13 @@ mod tests {
         assert_eq!(
             scanner.scan_tokens(),
             &vec![
-                Token::new(TokenType::LESS, "<", 1),
-                Token::new(TokenType::LESS_EQUAL, "<=", 1),
-                Token::new(TokenType::GREATER, ">", 1),
-                Token::new(TokenType::GREATER_EQUAL, ">=", 1),
-                Token::new(TokenType::EQUAL_EQUAL, "==", 1),
-                Token::new(TokenType::EQUAL, "=", 1),
-                Token::new(TokenType::EOF, "", 1),
+                Token::new(TokenType::Less, "<", 1),
+                Token::new(TokenType::LessEqual, "<=", 1),
+                Token::new(TokenType::Greater, ">", 1),
+                Token::new(TokenType::GreaterEqual, ">=", 1),
+                Token::new(TokenType::EqualEqual, "==", 1),
+                Token::new(TokenType::Equal, "=", 1),
+                Token::new(TokenType::Eof, "", 1),
             ]
         );
     }
@@ -285,9 +283,9 @@ mod tests {
         assert_eq!(
             scanner.scan_tokens(),
             &vec![
-                Token::new(TokenType::LESS, "<", 2),
-                Token::new(TokenType::GREATER_EQUAL, ">=", 2),
-                Token::new(TokenType::EOF, "", 2),
+                Token::new(TokenType::Less, "<", 2),
+                Token::new(TokenType::GreaterEqual, ">=", 2),
+                Token::new(TokenType::Eof, "", 2),
             ]
         );
     }
@@ -304,12 +302,12 @@ mod tests {
         assert_eq!(
             scanner.scan_tokens(),
             &vec![
-                Token::new(TokenType::LESS, "<", 2),
-                Token::new(TokenType::GREATER, ">", 2),
-                Token::new(TokenType::EQUAL, "=", 2),
-                Token::new(TokenType::LEFT_PAREN, "(", 3),
-                Token::new(TokenType::RIGHT_PAREN, ")", 3),
-                Token::new(TokenType::EOF, "", 3),
+                Token::new(TokenType::Less, "<", 2),
+                Token::new(TokenType::Greater, ">", 2),
+                Token::new(TokenType::Equal, "=", 2),
+                Token::new(TokenType::LeftParen, "(", 3),
+                Token::new(TokenType::RightParen, ")", 3),
+                Token::new(TokenType::Eof, "", 3),
             ]
         );
     }
@@ -324,12 +322,12 @@ a newline\"<"
         assert_eq!(
             scanner.scan_tokens(),
             &vec![
-                Token::new(TokenType::EQUAL, "=", 1),
-                Token::new(TokenType::STRING, "\"Hello, world!\"", 1),
-                Token::new(TokenType::EQUAL, "=", 1),
-                Token::new(TokenType::STRING, "\"Here is \na newline\"", 2),
-                Token::new(TokenType::LESS, "<", 2),
-                Token::new(TokenType::EOF, "", 2),
+                Token::new(TokenType::Equal, "=", 1),
+                Token::new(TokenType::String, "\"Hello, world!\"", 1),
+                Token::new(TokenType::Equal, "=", 1),
+                Token::new(TokenType::String, "\"Here is \na newline\"", 2),
+                Token::new(TokenType::Less, "<", 2),
+                Token::new(TokenType::Eof, "", 2),
             ]
         );
     }
@@ -342,12 +340,12 @@ a newline\"<"
         assert_eq!(
             scanner.scan_tokens(),
             &vec![
-                Token::new(TokenType::NUMBER, "1.2", 1),
-                Token::new(TokenType::PLUS, "+", 1),
-                Token::new(TokenType::NUMBER, "13", 1),
-                Token::new(TokenType::EQUAL, "=", 1),
-                Token::new(TokenType::NUMBER, "14.2", 1),
-                Token::new(TokenType::EOF, "", 1),
+                Token::new(TokenType::Number, "1.2", 1),
+                Token::new(TokenType::Plus, "+", 1),
+                Token::new(TokenType::Number, "13", 1),
+                Token::new(TokenType::Equal, "=", 1),
+                Token::new(TokenType::Number, "14.2", 1),
+                Token::new(TokenType::Eof, "", 1),
             ]
         );
     }
@@ -360,9 +358,9 @@ a newline\"<"
         assert_eq!(
             scanner.scan_tokens(),
             &vec![
-                Token::new(TokenType::DOT, ".", 1),
-                Token::new(TokenType::NUMBER, "12.34", 1),
-                Token::new(TokenType::EOF, "", 1),
+                Token::new(TokenType::Dot, ".", 1),
+                Token::new(TokenType::Number, "12.34", 1),
+                Token::new(TokenType::Eof, "", 1),
             ]
         );
     }
@@ -375,9 +373,9 @@ a newline\"<"
         assert_eq!(
             scanner.scan_tokens(),
             &vec![
-                Token::new(TokenType::NUMBER, "1234", 1),
-                Token::new(TokenType::DOT, ".", 1),
-                Token::new(TokenType::EOF, "", 1),
+                Token::new(TokenType::Number, "1234", 1),
+                Token::new(TokenType::Dot, ".", 1),
+                Token::new(TokenType::Eof, "", 1),
             ]
         );
     }
@@ -394,22 +392,22 @@ if (a == 1) a = 2;
         assert_eq!(
             scanner.scan_tokens(),
             &vec![
-                Token::new(TokenType::VAR, "var", 1),
-                Token::new(TokenType::IDENTIFIER, "a", 1),
-                Token::new(TokenType::EQUAL, "=", 1),
-                Token::new(TokenType::NUMBER, "1", 1),
-                Token::new(TokenType::SEMICOLON, ";", 1),
-                Token::new(TokenType::IF, "if", 2),
-                Token::new(TokenType::LEFT_PAREN, "(", 2),
-                Token::new(TokenType::IDENTIFIER, "a", 2),
-                Token::new(TokenType::EQUAL_EQUAL, "==", 2),
-                Token::new(TokenType::NUMBER, "1", 2),
-                Token::new(TokenType::RIGHT_PAREN, ")", 2),
-                Token::new(TokenType::IDENTIFIER, "a", 2),
-                Token::new(TokenType::EQUAL, "=", 2),
-                Token::new(TokenType::NUMBER, "2", 2),
-                Token::new(TokenType::SEMICOLON, ";", 2),
-                Token::new(TokenType::EOF, "", 3),
+                Token::new(TokenType::Var, "var", 1),
+                Token::new(TokenType::Identifier, "a", 1),
+                Token::new(TokenType::Equal, "=", 1),
+                Token::new(TokenType::Number, "1", 1),
+                Token::new(TokenType::Semicolon, ";", 1),
+                Token::new(TokenType::If, "if", 2),
+                Token::new(TokenType::LeftParen, "(", 2),
+                Token::new(TokenType::Identifier, "a", 2),
+                Token::new(TokenType::EqualEqual, "==", 2),
+                Token::new(TokenType::Number, "1", 2),
+                Token::new(TokenType::RightParen, ")", 2),
+                Token::new(TokenType::Identifier, "a", 2),
+                Token::new(TokenType::Equal, "=", 2),
+                Token::new(TokenType::Number, "2", 2),
+                Token::new(TokenType::Semicolon, ";", 2),
+                Token::new(TokenType::Eof, "", 3),
             ]
         );
     }

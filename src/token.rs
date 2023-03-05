@@ -27,10 +27,10 @@ mod tests {
 
     #[test]
     fn to_string_works() {
-        let token = Token::new(TokenType::IDENTIFIER, "x1", 10);
-        assert_eq!(token.to_string(), "IDENTIFIER x1 10");
+        let token = Token::new(TokenType::Identifier, "x1", 10);
+        assert_eq!(token.to_string(), "Identifier x1 10");
 
-        let token = Token::new(TokenType::PLUS, "+", 10);
-        assert_eq!(token.to_string(), "PLUS + 10");
+        let token = Token::new(TokenType::Plus, "+", 10);
+        assert_eq!(token.to_string(), "Plus + 10");
     }
 }
