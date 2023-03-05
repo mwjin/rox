@@ -90,6 +90,7 @@ impl<'a> Scanner<'a> {
             }
             '\n' => self.line += 1,
             ' ' | '\t' | '\r' => (),
+            '"' => self.scan_string(),
             _ => Rox::error(self.line, "Unexpected character."),
         };
     }
@@ -120,6 +121,23 @@ impl<'a> Scanner<'a> {
             &self.source[self.current..self.source.len()],
             self.line,
         ));
+    }
+
+    fn scan_string(&mut self) {
+        while !self.is_at_end() && self.peek() != '"' {
+            if self.peek() == '\n' {
+                self.line += 1
+            }
+            self.advance();
+        }
+
+        if self.is_at_end() {
+            Rox::error(self.line, "Unterminated string.");
+            return;
+        }
+
+        self.advance();
+        self.add_token(TokenType::STRING);
     }
 }
 
@@ -174,7 +192,7 @@ mod tests {
                 Token::new(TokenType::EQUAL, "=", 1),
                 Token::new(TokenType::EOF, "", 1),
             ]
-        )
+        );
     }
 
     #[test]
@@ -192,7 +210,7 @@ mod tests {
                 Token::new(TokenType::GREATER_EQUAL, ">=", 2),
                 Token::new(TokenType::EOF, "", 2),
             ]
-        )
+        );
     }
 
     #[test]
@@ -214,6 +232,26 @@ mod tests {
                 Token::new(TokenType::RIGHT_PAREN, ")", 3),
                 Token::new(TokenType::EOF, "", 3),
             ]
-        )
+        );
+    }
+
+    #[test]
+    fn test_scan_tokens_string_literals() {
+        let source = "=\"Hello, world!\"=\"Here is 
+a newline\"<"
+            .to_string();
+        let mut scanner = Scanner::new(&source);
+
+        assert_eq!(
+            scanner.scan_tokens(),
+            &vec![
+                Token::new(TokenType::EQUAL, "=", 1),
+                Token::new(TokenType::STRING, "\"Hello, world!\"", 1),
+                Token::new(TokenType::EQUAL, "=", 1),
+                Token::new(TokenType::STRING, "\"Here is \na newline\"", 2),
+                Token::new(TokenType::LESS, "<", 2),
+                Token::new(TokenType::EOF, "", 2),
+            ]
+        );
     }
 }
